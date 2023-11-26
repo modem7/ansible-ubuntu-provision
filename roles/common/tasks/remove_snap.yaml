@@ -1,0 +1,29 @@
+---
+- name: Remove /var/cache/snapd directory
+  file:
+    path: /var/cache/snapd
+    state: absent
+
+- name: Remove snapd and gnome-software-plugin-snap packages
+  apt:
+    name:
+      - snapd
+      - gnome-software-plugin-snap
+    autoremove: yes
+    purge: yes
+    state: absent
+    update_cache: yes
+
+- name: Remove ~/snap directory
+  file:
+    path: "{{ ansible_env.HOME }}/snap"
+    state: absent
+
+- name: Hold snapd package
+  apt:
+    name: snapd
+    state: hold
+
+- name: Reload systemd daemon
+  systemd:
+    daemon_reload: yes

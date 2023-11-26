@@ -1,0 +1,8 @@
+---
+username: modem7
+ansusr: ansible
+ansssh: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFv+XL86DUoq1o4EEC24uYecv4nU76XcmTeOO1rin9gx ansible
+MYDOMAIN: modem7.com
+POSTFIX_RELAY: smtp.gmail.com
+POSTFIX_USER: modem7@gmail.com
+POSTFIX_PASS: mdmhkhgxwxaehnwp

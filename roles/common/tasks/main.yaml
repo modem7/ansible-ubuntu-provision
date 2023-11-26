@@ -1,0 +1,13 @@
+---
+  - include: check-preconditions.yaml
+  - include: update-upgrade.yaml
+  - include: common_packages.yaml
+  # - include: remove_snap.yaml
+  - include: ansible_user.yaml
+  - include: disable_ipv6.yaml
+  - include: docker.yaml
+  - include: postfix.yaml
+  # - include: zsh.yaml
+  - include: zram.yaml
+  - include: unnatended_upgrades.yaml
+  - include: cleanup.yaml

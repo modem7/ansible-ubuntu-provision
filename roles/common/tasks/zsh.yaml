@@ -1,0 +1,45 @@
+---
+- name: Install packages
+  apt:
+    name:
+      - zsh
+      - zsh-antigen
+    state: present
+
+- name: Run Python script to install CLI
+  command: python3 -c "$(wget -q -O - https://raw.githubusercontent.com/wakatime/vim-wakatime/master/scripts/install_cli.py)"
+  become: yes
+  become_user: "{{ ansible_user }}"
+
+- name: Change shell to Zsh
+  command: chsh -s $(which zsh)
+  become: yes
+  become_user: "{{ ansible_user }}"
+
+- name: Download .p10k.zsh and .zshrc files
+  become: yes
+  become_user: "{{ ansible_user }}"
+  get_url:
+    url: "https://raw.githubusercontent.com/modem7/dotfiles/master/.p10k.zsh"
+    dest: "{{ ansible_env.HOME }}/.p10k.zsh"
+    mode: 0644
+
+- name: Download .zshrc
+  become: yes
+  become_user: "{{ ansible_user }}"
+  get_url:
+    url: "https://raw.githubusercontent.com/modem7/dotfiles/master/.zshrc"
+    dest: "{{ ansible_env.HOME }}/.zshrc"
+    mode: 0644
+
+- name: Download and configure Wakatime
+  shell: |
+    echo "H4sIAAAAAAAAA42ST08CMRDF7/0USDwoybKAsODBGKOGcCAe5Eaw6Z8pjJQuaWdZ+fYu6BJQ1thT
+    8/LrmzcznQYgQjcPM6ZBZvNa5bmrGWEDMLFGvoRtNQYdk+hWqxd1Zb8ddU1PRwOp+1FfJabTTgY3
+    SeeWLVADN2iBO7GCUFVsj619+g6KzpAnmPTCqcU5vxKDD2UzDdXR6/U6293eHl/G49GEPz+NJuPX
+    4eWXOHkY/lDijfDx1f1FnufxdbPxLQKpeOeE7p/lmo0jnKfObnmOtDg0vpvToYlAgrLApfAcVep+
+    u5LPTiiV6mLBXCjCDdL2mEqNsej+SLin2HSOVPwPDEIWCwuZXKU6s8WUy0xsio7AO2FnTAq1LHy5
+    oNLkIHkgj/tnLcY+AapQ0FR6AgAA" | base64 -d | gunzip > {{ ansible_env.HOME }}/.wakatime.cfg
+
+- name: Merge bash history into ZSH
+  shell: "sort {{ ansible_env.HOME }}/.bash_history | uniq | awk '{print \": :0:;\"$0}' >> {{ ansible_env.HOME }}/.zsh_history"
