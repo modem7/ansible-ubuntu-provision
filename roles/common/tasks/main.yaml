@@ -1,0 +1,11 @@
+---
+  - include_tasks: check-preconditions.yaml
+  - include_tasks: update-upgrade.yaml
+  - include_tasks: common_packages.yaml
+  - include_tasks: ansible_user.yaml
+  - include_tasks: disable_ipv6.yaml
+  - include_tasks: docker.yaml
+  - include_tasks: postfix.yaml
+  - include_tasks: zram.yaml
+  - include_tasks: unnatended_upgrades.yaml
+  - include_tasks: cleanup.yaml

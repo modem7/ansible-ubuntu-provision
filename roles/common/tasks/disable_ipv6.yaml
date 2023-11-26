@@ -1,0 +1,11 @@
+---
+- name: Disable IPv6
+  become: true
+  become_user: root
+  lineinfile:
+    path: /etc/sysctl.d/disable-ipv6.conf
+    create: yes
+    line: "{{ item }}"
+  with_items:
+    - "net.ipv6.conf.all.disable_ipv6 = 1"
+    - "net.ipv6.conf.default.disable_ipv6 = 1"

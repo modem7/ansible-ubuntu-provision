@@ -1,0 +1,46 @@
+---
+- name: Update apt cache and install unattended-upgrades
+  apt:
+    update_cache: yes
+    name: unattended-upgrades
+    state: present
+
+- name: Configure unattended-upgrades
+  copy:
+    content: |
+      // Allowed Origins
+      // Can grab required details from "apt-cache policy"
+      Unattended-Upgrade::Allowed-Origins {
+          "${distro_id}:${distro_codename}";
+          "${distro_id}:${distro_codename}-security";
+          // Extended Security Maintenance; doesn't necessarily exist for
+          // every release and this system may not have it installed, but if
+          // available, the policy for updates is such that unattended-upgrades
+          // should also install from here by default.
+          "${distro_id}ESMApps:${distro_codename}-apps-security";
+          "${distro_id}ESM:${distro_codename}-infra-security";
+          "${distro_id}:${distro_codename}-updates";
+          "Docker:${distro_codename}";
+          "packagecloud.io/crowdsec/crowdsec:${distro_codename}";
+          "Jamie Cameron:stable";
+          "LP-PPA-ansible-ansible:${distro_codename}";
+          "Artifactory:${distro_codename}";
+          "packagecloud.io/netdata/netdata-repoconfig:${distro_codename}";
+      };
+      
+      Unattended-Upgrade::Origins-Pattern {
+          "origin=gh,codename=main";
+      };
+      
+      // Mail
+      Unattended-Upgrade::Mail "modem7@gmail.com";
+      Unattended-Upgrade::MailReport "on-change";
+      
+      // Auto remove
+      Unattended-Upgrade::Remove-Unused-Dependencies "true";
+      
+      // Auto reboot
+      Unattended-Upgrade::Automatic-Reboot "true";
+      Unattended-Upgrade::Automatic-Reboot-Time "06:00";
+    dest: /etc/apt/apt.conf.d/51unattended-upgrades
+  become_user: root

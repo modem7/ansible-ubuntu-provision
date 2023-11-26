@@ -1,0 +1,9 @@
+---
+- name: A playbook to setup my local machine with my customizations
+  hosts: localhost
+  connection: local
+  vars:
+    contents: "{{ lookup('file', 'roles/common/vars/main.yml') }}"
+  roles:
+    - { role: roles/bodsch.snapd }
+    - { role: roles/common }

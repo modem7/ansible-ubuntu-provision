@@ -1,0 +1,55 @@
+---
+- name: Generate a random password
+  shell: "openssl rand -base64 64"
+  register: random_password
+  changed_when: false  # Since the command always returns a different value, mark it as unchanged
+
+- name: Creating user
+  user:
+    name: "{{ ansusr }}"
+    password: "{{ random_password.stdout | password_hash('sha512') }}"
+    createhome: yes
+    shell: /bin/bash
+    system: yes
+    state: present
+
+- name: Locking password
+  shell: passwd -l {{ ansusr }}
+  become_user: root
+
+- name: Adding account to sudoers
+  lineinfile:
+    dest: /etc/sudoers.d/{{ ansusr }}
+    line: "{{ ansusr }} ALL=(root) NOPASSWD:ALL"
+    create: yes
+  become_user: root
+
+- name: Adding SSH key
+  authorized_key:
+    user: "{{ ansusr }}"
+    key: "{{ ansssh }}"
+    state: present
+
+- name: Fixing permissions and groups
+  file:
+    path: "/home/{{ ansusr }}/.ssh/"
+    owner: "{{ ansusr }}"
+    group: "{{ ansusr }}"
+    state: directory
+    recurse: yes
+    mode: '0700'
+
+- name: Set permissions on authorized_keys
+  file:
+    path: "/home/{{ ansusr }}/.ssh/authorized_keys"
+    owner: "{{ ansusr }}"
+    group: "{{ ansusr }}"
+    mode: '0644'
+
+- name: Change authorized_keys permissions
+  file:
+    path: "/home/{{ ansusr }}/.ssh/authorized_keys"
+    owner: "{{ ansusr }}"
+    group: "{{ ansusr }}"
+    mode: "0644"
+  become_user: root

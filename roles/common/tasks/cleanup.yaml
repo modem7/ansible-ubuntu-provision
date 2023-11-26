@@ -1,0 +1,68 @@
+---
+
+- name: Stop rsyslog service
+  service:
+    name: rsyslog
+    state: stopped
+
+- name: Truncate audit.log if exists
+  command: truncate -s 0 /var/log/audit/audit.log
+  ignore_errors: yes
+  become_user: root
+
+- name: Truncate wtmp if exists
+  command: truncate -s 0 /var/log/wtmp
+  ignore_errors: yes
+  become_user: root
+
+- name: Truncate lastlog if exists
+  command: truncate -s 0 /var/log/lastlog
+  ignore_errors: yes
+  become_user: root
+
+- name: Remove 70-persistent-net.rules if exists
+  file:
+    path: /etc/udev/rules.d/70-persistent-net.rules
+    state: absent
+  ignore_errors: yes
+  become_user: root
+
+- name: Remove subiquity-disable-cloudinit-networking.cfg if exists
+  file:
+    path: /etc/cloud/cloud.cfg.d/subiquity-disable-cloudinit-networking.cfg
+    state: absent
+  ignore_errors: yes
+  become_user: root
+
+- name: Clean temporary directories
+  shell: |
+    rm -rf /tmp/*
+    rm -rf /var/tmp/*
+  become_user: root
+
+- name: Run fstrim and enable tuned
+  shell: |
+    fstrim -av
+    systemctl enable --now tuned
+    tuned-adm profile virtual-guest
+    systemctl enable fstrim.timer
+  become_user: root
+
+- name: Clean system packages and shutdown
+  shell: |
+    apt-get clean
+    apt-get -y autoremove --purge
+    apt-get -y clean
+    apt-get -y autoclean
+    cloud-init clean
+    >/etc/machine-id
+    sync
+    rm -rf /root/.bash_history
+    rm -rf /root/.history
+  become_user: root
+  args:
+    executable: /bin/bash
+
+# - name: Shutdown the machine
+  # command: shutdown now
+  # become_user: root
